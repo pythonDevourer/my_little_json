@@ -1,6 +1,6 @@
 # test json
 test/test.json
-
+src/test.c
 
 # Prerequisites
 *.d
