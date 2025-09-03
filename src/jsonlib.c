@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
+
 
 char *get_dir(char *path) {
     char *slash_index = strrchr(path, '/');
@@ -26,28 +28,54 @@ char *get_dir(char *path) {
 
 
 void json_load(JSON *json_file) {
-    
+    FILE *fp = open_json(json_file, "r");
+    if (!fp) return;
+
+    fseek(fp, 0, SEEK_END);
+    long filesize = ftell(fp);
+    rewind(fp);
+
+    size_t readsize = (json_file->buffersize > 0 && json_file->buffersize < filesize)
+                        ? json_file->buffersize
+                        : filesize;
+
+    json_file->content = malloc(readsize + 1);
+    if (!json_file->content) {
+        perror("malloc failed");
+        fclose(fp);
+        return;
+    }
+
+    size_t read_bytes = fread(json_file->content, sizeof(char), readsize, fp);
+    if (read_bytes != readsize) {
+        perror("failed to read bytes");
+    }
+    json_file->content[read_bytes] = '\0';
+
+    fclose(fp);
 }
-
-
-
 
 void json_dump(JSON *json_file, char *content) {
+    FILE *fp = open_json(json_file, "w");
+    if (!fp) return;
 
-    FILE *fp = open_json(json_file);
-   
-    fprintf(fp, content);
-
+    fprintf(fp, "%s", content);
+    fclose(fp);
 }
 
 
-FILE *open_json(JSON *json_file) {
+
+FILE *open_json(JSON *json_file, char *mode) {
     
     char *dir = get_dir(json_file->path);
-    mkdir(dir, 0777);
+    if (mkdir(dir, 0777) && errno != EEXIST) {
+        perror("mkdir failed");
+        free(dir);
+        return NULL;
+    }
     free(dir);
 
-    FILE *fp = fopen(json_file->path, "w");
+    FILE *fp = fopen(json_file->path, mode);
     if (!fp) {
         perror("failed to open file");
         return NULL;
