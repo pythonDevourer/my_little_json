@@ -2,7 +2,13 @@
 #define JSONLIB_H
 
 
+typedef enum {
+    JSON_TYPE_ARRAY,
+    JSON_TYPE_OBJECT
+} JSONType;
+
 typedef struct json_struct {
+    JSONType type;
     int buffersize;
     char *path;
     char *content;
