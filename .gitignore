@@ -1,7 +1,9 @@
-# test json
-test/test.json
+# test
+test/
 src/test.c
+
 bin/
+
 # Prerequisites
 *.d
 
