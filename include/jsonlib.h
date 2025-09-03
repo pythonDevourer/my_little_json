@@ -3,6 +3,7 @@
 
 
 typedef enum {
+    JSON_TYPE_UNKNOWN = 0,
     JSON_TYPE_ARRAY,
     JSON_TYPE_OBJECT
 } JSONType;

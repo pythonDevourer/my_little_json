@@ -52,12 +52,37 @@ void json_load(JSON *json_file) {
     }
     json_file->content[read_bytes] = '\0';
 
+    if (json_file->type == JSON_TYPE_UNKNOWN) {
+        switch(json_file->content[0]) {
+            case '[':
+                json_file->type = JSON_TYPE_ARRAY;
+                break;
+            case '{':
+                json_file->type = JSON_TYPE_OBJECT;
+                break;
+        }
+    }
     fclose(fp);
 }
 
 void json_dump(JSON *json_file, char *content) {
     FILE *fp = open_json(json_file, "w");
     if (!fp) return;
+
+    json_file->content = content;
+
+    printf("%s", content);
+    switch(content[0]) {
+        case '[':
+            json_file->type = JSON_TYPE_ARRAY;
+            break;
+        case '{':
+            json_file->type = JSON_TYPE_OBJECT;
+            break;
+        default:
+            json_file->type = JSON_TYPE_UNKNOWN;
+            break;
+    }
 
     fprintf(fp, "%s", content);
     fclose(fp);
