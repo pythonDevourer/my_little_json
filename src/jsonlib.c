@@ -84,7 +84,6 @@ void json_dump(JSON *json_file, char *content) {
             break;
     }
 
-    fprintf(fp, "%s", content);
     fclose(fp);
 }
 
